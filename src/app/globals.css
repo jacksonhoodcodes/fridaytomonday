@@ -8,6 +8,11 @@
 
 body {
   @apply bg-zinc-950 text-zinc-100 antialiased;
+  color-scheme: light;
+}
+
+body {
+  @apply bg-white text-zinc-900 antialiased;
 }
 
 a {

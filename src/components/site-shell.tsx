@@ -5,6 +5,14 @@ const primaryNav = [
   { href: '/logs', label: 'Tue–Thu Log' },
   { href: '/sprints', label: 'Fri–Mon Grind' },
   { href: '/portfolio', label: 'Portfolio' }
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/logs', label: 'Tue–Thu Logs' },
+  { href: '/sprints', label: 'Fri–Mon Sprints' },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/about', label: 'About' },
+  { href: '/now', label: 'Now' },
+  { href: '/subscribe', label: 'Subscribe' }
 ];
 
 export function SiteShell({ children }: { children: ReactNode }) {
@@ -36,6 +44,17 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 </Link>
               </li>
             </ul>
+      <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4">
+          <Link href="/" className="text-base font-semibold tracking-tight text-zinc-900">
+            Jackson Hood
+          </Link>
+          <nav className="flex flex-wrap items-center gap-3 text-sm text-zinc-600">
+            {navLinks.map((item) => (
+              <Link key={item.href} href={item.href} className="rounded-full px-3 py-1.5 hover:bg-zinc-100 hover:text-zinc-900">
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
       </header>

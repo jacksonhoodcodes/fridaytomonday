@@ -69,6 +69,14 @@ function parseFrontmatter<TMeta>(raw: string, filePath: string): { meta: TMeta; 
     const message = error instanceof Error ? error.message : 'Unknown parsing error';
     throw new Error(`Failed to parse frontmatter in ${filePath}: ${message}`);
   }
+function parseFrontmatter<TMeta>(raw: string): { meta: TMeta; content: string } {
+  const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) {
+    throw new Error('Invalid frontmatter format. Use --- JSON --- body');
+  }
+
+  const meta = JSON.parse(match[1]) as TMeta;
+  return { meta, content: match[2].trim() };
 }
 
 function readDirectory<TMeta>(dir: string): ContentItem<TMeta>[] {
@@ -82,6 +90,7 @@ function readDirectory<TMeta>(dir: string): ContentItem<TMeta>[] {
       const raw = fs.readFileSync(fullPath, 'utf8');
       const slug = file.replace(/\.md$/, '');
       const { meta, content } = parseFrontmatter<TMeta>(raw, fullPath);
+      const { meta, content } = parseFrontmatter<TMeta>(raw);
       return { slug, meta, content };
     });
 
