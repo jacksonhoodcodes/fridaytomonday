@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { parse as parseYaml } from 'yaml';
 
 export type ProofLink = { label: string; url: string };
 
@@ -42,6 +43,32 @@ type ContentItem<TMeta> = {
 const POSTS_DIR = path.join(process.cwd(), 'content/posts');
 const PROJECTS_DIR = path.join(process.cwd(), 'content/projects');
 
+function parseFrontmatter<TMeta>(raw: string, filePath: string): { meta: TMeta; content: string } {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+
+  if (!match) {
+    const firstLine = raw.split(/\r?\n/, 1)[0] ?? '';
+    throw new Error(`Invalid frontmatter format in ${filePath}. Expected --- frontmatter --- body. First line: "${firstLine}"`);
+  }
+
+  const frontmatter = match[1].trim();
+  const body = match[2].trim();
+
+  try {
+    if (frontmatter.startsWith('{') || frontmatter.startsWith('[')) {
+      return { meta: JSON.parse(frontmatter) as TMeta, content: body };
+    }
+
+    const parsed = parseYaml(frontmatter);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('Frontmatter must parse to an object.');
+    }
+
+    return { meta: parsed as TMeta, content: body };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown parsing error';
+    throw new Error(`Failed to parse frontmatter in ${filePath}: ${message}`);
+  }
 function parseFrontmatter<TMeta>(raw: string): { meta: TMeta; content: string } {
   const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!match) {
@@ -62,6 +89,7 @@ function readDirectory<TMeta>(dir: string): ContentItem<TMeta>[] {
       const fullPath = path.join(dir, file);
       const raw = fs.readFileSync(fullPath, 'utf8');
       const slug = file.replace(/\.md$/, '');
+      const { meta, content } = parseFrontmatter<TMeta>(raw, fullPath);
       const { meta, content } = parseFrontmatter<TMeta>(raw);
       return { slug, meta, content };
     });
