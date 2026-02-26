@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ProjectCard } from '@/components/cards';
-import { ProjectMeta } from '@/lib/content-types';
+import { ProjectMeta } from '@/lib/content';
 
 type ProjectItem = { slug: string; meta: ProjectMeta };
 
